@@ -1,38 +1,55 @@
 import React from "react";
 import { DataGrid, GridColDef, GridRowProps } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
+import { CircularProgress } from "@mui/material";
+import { collection, doc, updateDoc } from "firebase/firestore";
+import { DocumentReference } from "firebase/firestore";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface DataGridDocument {
   id: string;
   name: string;
   paid: boolean;
+  docRef: DocumentReference; // Add this line
 }
 
 interface Props {
   documents: DataGridDocument[];
+  onCellClick: (id: string, field: string, value: boolean) => void;
 }
 
-export const PaidStatusDataGrid: React.FC<Props> = ({ documents }) => {
+export const PaidStatusDataGrid: React.FC<Props> = ({
+  documents,
+  onCellClick,
+}) => {
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
-    { field: "paid", headerName: "Paid", flex: 1, type: "boolean" },
     {
-      field: "markAsPaid",
-      headerName: "Mark As Paid",
+      field: "paid",
+      headerName: "Paid",
       flex: 1,
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params: any) => {
-        const onClick = () => {
-          console.log(`Mark as paid for document with ID: ${params.id}`);
-          // Implement the logic to mark the document as paid.
-        };
-
+      type: "boolean",
+      renderCell: (params) => {
         return (
-          <Button variant="outlined" onClick={onClick}>
-            Mark As Paid
-          </Button>
+          <div
+            onClick={() =>
+              onCellClick(params.id.toString(), params.field, !params.value)
+            }
+          >
+            {params.value ? (
+              <CheckIcon
+                style={{
+                  color: "#32a852",
+                }}
+              />
+            ) : (
+              <CloseIcon
+                style={{
+                  color: "#a83255",
+                }}
+              />
+            )}
+          </div>
         );
       },
     },

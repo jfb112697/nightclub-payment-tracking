@@ -8,14 +8,17 @@ import {
   DocumentData,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import db from "../firebase";
 import { PaidStatusDataGrid } from "./PaidStatusDataGrid";
+import useFetchEntrants from "../Queries/useFetchEntrants";
 
 type Props = {};
 
@@ -25,15 +28,19 @@ export default function EventSearch({}: Props) {
     useLazyQuery(TOURNAMENT_QUERY);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [eventCollectionRef, setEventCollectionRef] =
-    useState<CollectionReference<DocumentData> | null>(null);
+  const [eventCollectionRef, setEventCollectionRef] = useState(null);
 
   const [snapshot, loadingDocuments, errorDocuments] =
     useCollection(eventCollectionRef);
+  const {
+    entrants,
+    loading: entrantsLoading,
+    error: entrantsError,
+  } = useFetchEntrants(selectedEventId);
 
   useEffect(() => {
     if (selectedEventId) {
-      console.log(`Fetching documents for collection "${selectedEventId}"`);
+      console.log(`Fetching documents for collection "${selectedEventId}"`); //@ts-ignore
       setEventCollectionRef(collection(db, selectedEventId.toString()));
     } else {
       setEventCollectionRef(null);
@@ -57,6 +64,55 @@ export default function EventSearch({}: Props) {
     }
     setSelectedEventId(eventId);
   }
+
+  const updateFirestoreCollection = async () => {
+    if (entrants && eventCollectionRef) {
+      // Fetch the current documents in Firestore
+      const snapshot = await getDocs(eventCollectionRef);
+      const firestoreEntrants: { [id: string]: boolean } = {};
+      snapshot.forEach((doc) => {
+        firestoreEntrants[doc.id] = true;
+      });
+
+      // Add new entrants and update existing ones
+      await Promise.all(
+        entrants.map((entrant) => {
+          delete firestoreEntrants[entrant.id];
+          return setDoc(
+            doc(eventCollectionRef, entrant.id.toString()),
+            entrant
+          );
+        })
+      );
+
+      // Remove entrants that are not in the API result
+      await Promise.all(
+        Object.keys(firestoreEntrants).map((id) =>
+          deleteDoc(doc(eventCollectionRef, id))
+        )
+      );
+
+      console.log("Firestore collection updated.");
+    }
+  };
+
+  useEffect(() => {
+    updateFirestoreCollection();
+  }, [entrants, eventCollectionRef]);
+
+  const handlePaidStatusToggle = async (
+    id: string,
+    field: string,
+    value: boolean
+  ) => {
+    if (eventCollectionRef) {
+      const entrantDocRef = doc(eventCollectionRef, id);
+      await updateDoc(entrantDocRef, { [field]: value });
+      console.log(
+        `Updated entrant with ID "${id}", set "${field}" to "${value}".`
+      );
+    }
+  };
 
   return (
     <Paper className="bg-slate-100 flex flex-col flex-[.5] p-8 justify-center gap-4">
@@ -112,6 +168,7 @@ export default function EventSearch({}: Props) {
                 name: doc.data().name,
                 paid: doc.data().paid,
               }))}
+              onCellClick={handlePaidStatusToggle}
             />
           )}
         </div>

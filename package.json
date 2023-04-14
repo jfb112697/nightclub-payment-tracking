@@ -19,6 +19,7 @@
     "@mui/material": "^5.12.0",
     "@mui/x-data-grid": "^6.2.0",
     "firebase": "^9.19.1",
+    "firebase-tools": "^11.27.0",
     "graphql": "^16.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
