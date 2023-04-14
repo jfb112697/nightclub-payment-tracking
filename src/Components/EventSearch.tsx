@@ -1,4 +1,5 @@
 import { Button, Paper, TextField } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import React, { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { TOURNAMENT_QUERY } from "../Queries/TournamentQuery";
@@ -14,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import db from "../firebase";
+import { PaidStatusDataGrid } from "./PaidStatusDataGrid";
 
 type Props = {};
 
@@ -58,7 +60,7 @@ export default function EventSearch({}: Props) {
 
   return (
     <Paper className="bg-slate-100 flex flex-col flex-[.5] p-8 justify-center gap-4">
-      {!eventCollectionRef && (
+      {!eventCollectionRef ? (
         <div>
           <h2>Enter the slug of the tournament</h2>
           <form className="flex flex-col gap-4 " onSubmit={handleSubmit}>
@@ -94,6 +96,23 @@ export default function EventSearch({}: Props) {
                 )}
               </ul>
             </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          <h3>Documents in the "{selectedEventId}" collection:</h3>
+          {loadingDocuments || !snapshot ? (
+            <p>Loading documents...</p>
+          ) : errorDocuments ? (
+            <p>Error fetching documents: {errorDocuments.message}</p>
+          ) : (
+            <PaidStatusDataGrid //@ts-ignore
+              documents={snapshot.docs.map((doc) => ({
+                id: doc.id,
+                name: doc.data().name,
+                paid: doc.data().paid,
+              }))}
+            />
           )}
         </div>
       )}
