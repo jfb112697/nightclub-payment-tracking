@@ -38,6 +38,8 @@ export default function EventSearch({}: Props) {
     error: entrantsError,
   } = useFetchEntrants(selectedEventId);
 
+  //end hooks
+
   useEffect(() => {
     if (selectedEventId) {
       console.log(`Fetching documents for collection "${selectedEventId}"`); //@ts-ignore

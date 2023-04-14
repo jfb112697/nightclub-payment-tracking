@@ -5,6 +5,7 @@ import { collection, doc, updateDoc } from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import { useSearchContext } from "../Context/SearchContext";
 
 interface DataGridDocument {
   id: string;
@@ -55,9 +56,19 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
     },
   ];
 
+  const { searchQuery } = useSearchContext();
+
+  const filteredEntrants = documents.filter((entrant: DataGridDocument) =>
+    entrant.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div style={{ width: "100%", height: 400 }}>
-      <DataGrid rows={documents} columns={columns} checkboxSelection={false} />
+      <DataGrid
+        rows={filteredEntrants}
+        columns={columns}
+        checkboxSelection={false}
+      />
     </div>
   );
 };
