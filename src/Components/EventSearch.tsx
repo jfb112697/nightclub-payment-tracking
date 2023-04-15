@@ -78,19 +78,28 @@ export default function EventSearch({}: Props) {
 
       // Add new entrants and update existing ones
       await Promise.all(
-        entrants.map((entrant) => {
+        entrants.map(async (entrant) => {
           delete firestoreEntrants[entrant.id];
-          return setDoc(
-            doc(eventCollectionRef, entrant.id.toString()),
-            entrant
-          );
+          const docRef = doc(eventCollectionRef, entrant.id.toString());
+          const docSnapshot = await getDoc(docRef);
+
+          if (docSnapshot.exists()) {
+            // Update the document without overwriting the 'paid' value
+            //return updateDoc(docRef, { name: entrant.name });
+          } else {
+            // Add a new document with the 'paid' value set to false
+            return setDoc(docRef, { ...entrant, paid: false });
+          }
         })
       );
+
+      console.log(firestoreEntrants);
 
       // Remove entrants that are not in the API result
       await Promise.all(
         Object.keys(firestoreEntrants).map((id) =>
-          deleteDoc(doc(eventCollectionRef, id))
+          //deleteDoc(doc(eventCollectionRef, id)) why is this broken?
+          console.log(id)
         )
       );
 

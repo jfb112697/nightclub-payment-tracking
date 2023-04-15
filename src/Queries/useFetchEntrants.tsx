@@ -51,7 +51,6 @@ const useFetchEntrants = (id: string | null) => {
         (entrant: Entrant) => ({
           id: entrant.id,
           name: entrant.name,
-          paid: false,
         })
       );
 
