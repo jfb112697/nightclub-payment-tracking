@@ -98,7 +98,7 @@ export default function EventSearch({}: Props) {
       // Remove entrants that are not in the API result
       await Promise.all(
         Object.keys(firestoreEntrants).map((id) =>
-          //deleteDoc(doc(eventCollectionRef, id)) why is this broken?
+          //deleteDoc(doc(eventCollectionRef, id)) why is this
           console.log(id)
         )
       );
@@ -126,7 +126,7 @@ export default function EventSearch({}: Props) {
   };
 
   return (
-    <Paper className="bg-slate-100 flex flex-col flex-[.5] p-8 justify-center gap-4">
+    <Paper className="bg-slate-100 flex flex-col flex-1 p-8 max-w-[800px] justify-center gap-4">
       {!eventCollectionRef ? (
         <div>
           <h2>Enter the slug of the tournament</h2>

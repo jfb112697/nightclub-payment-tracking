@@ -30,9 +30,29 @@ const useFetchEntrants = (id: string | null) => {
   const [entrants, setEntrants] = useState<Entrant[]>([]);
   const [getEntrants, { data, loading, error }] = useLazyQuery(ENTRANTS_QUERY);
 
-  const fetchPage = useCallback(
-    async (page: number) => {
-      getEntrants({ variables: { id, page, perPage: 50 } });
+  const fetchAllPages = useCallback(
+    async (page: number, accumulator: Entrant[] = []) => {
+      getEntrants({
+        variables: { id, page, perPage: 50 },
+        onCompleted: (data) => {
+          const entrantsData = data.event.entrants.nodes.map(
+            (entrant: Entrant) => ({
+              id: entrant.id,
+              name: entrant.name,
+            })
+          );
+
+          const pageInfo = data.event.entrants.pageInfo;
+
+          const newAccumulator = [...accumulator, ...entrantsData];
+
+          if (pageInfo.page < pageInfo.totalPages) {
+            fetchAllPages(page + 1, newAccumulator);
+          } else {
+            setEntrants(newAccumulator);
+          }
+        },
+      });
     },
     [id, getEntrants]
   );
@@ -42,27 +62,8 @@ const useFetchEntrants = (id: string | null) => {
       return;
     }
 
-    fetchPage(1);
-  }, [id, fetchPage]);
-
-  useEffect(() => {
-    if (data) {
-      const entrantsData = data.event.entrants.nodes.map(
-        (entrant: Entrant) => ({
-          id: entrant.id,
-          name: entrant.name,
-        })
-      );
-
-      const pageInfo = data.event.entrants.pageInfo;
-
-      if (pageInfo.page < pageInfo.totalPages) {
-        fetchPage(pageInfo.page + 1);
-      } else {
-        setEntrants((prevEntrants) => [...prevEntrants, ...entrantsData]);
-      }
-    }
-  }, [data, fetchPage]);
+    fetchAllPages(1);
+  }, [id, fetchAllPages]);
 
   return { entrants, loading, error };
 };

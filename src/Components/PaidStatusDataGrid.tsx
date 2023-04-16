@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { DataGrid, GridColDef, GridRowProps } from "@mui/x-data-grid";
 import { CircularProgress } from "@mui/material";
 import { collection, doc, updateDoc } from "firebase/firestore";
@@ -23,6 +23,7 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
   documents,
   onCellClick,
 }) => {
+  const [page, setPage] = useState(0);
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
     {
@@ -63,11 +64,21 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
   );
 
   return (
-    <div style={{ width: "100%", height: 400 }}>
+    <div style={{ width: "100%", minHeight: 400 }}>
       <DataGrid
         rows={filteredEntrants}
         columns={columns}
         checkboxSelection={false}
+        autoHeight={true}
+        pageSizeOptions={[10, 15, 25, 50, 100]}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 12,
+            }, //@ts-ignore
+            pageSizeOptions: [5, 10, 15, 25, 50, 100],
+          },
+        }}
       />
     </div>
   );
