@@ -132,8 +132,13 @@ export default function EventSearch({}: Props) {
           <h2>Enter the slug of the tournament</h2>
           <form className="flex flex-col gap-4 " onSubmit={handleSubmit}>
             <TextField
-              label="Tournament Slug"
+              label={
+                data && !data.tournament
+                  ? "Tournament Not Found"
+                  : "Tournament Slug"
+              }
               variant="filled"
+              color={data && !data.tournament && "warning"}
               value={ggSlug}
               onChange={(c) => setGgSlug(c.target.value)}
             ></TextField>
@@ -143,7 +148,7 @@ export default function EventSearch({}: Props) {
           </form>
           {loading && <p>Loading...</p>}
           {error && <p>Error: {error.message}</p>}
-          {data && (
+          {data && data.tournament && (
             <div>
               <h2>{data.tournament.name}</h2>
               <ul className="flex gap-3">

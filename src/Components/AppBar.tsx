@@ -80,7 +80,7 @@ export default function SearchAppBar() {
           >
             nightclub payments
           </Typography>
-          <Search sx={{ flexGrow: 1 }}>
+          <Search sx={{ flexGrow: 1, display: "flex" }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>

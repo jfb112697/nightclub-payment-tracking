@@ -60,7 +60,9 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
   const { searchQuery } = useSearchContext();
 
   const filteredEntrants = documents.filter((entrant: DataGridDocument) =>
-    entrant.name.toLowerCase().includes(searchQuery.toLowerCase())
+    entrant && entrant.name
+      ? entrant.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : ""
   );
 
   return (
@@ -70,13 +72,13 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
         columns={columns}
         checkboxSelection={false}
         autoHeight={true}
-        pageSizeOptions={[10, 15, 25, 50, 100]}
+        pageSizeOptions={[10, 12, 15, 25, 50, 100]}
         initialState={{
           pagination: {
             paginationModel: {
               pageSize: 12,
             }, //@ts-ignore
-            pageSizeOptions: [5, 10, 15, 25, 50, 100],
+            pageSizeOptions: [5, 10, 12, 15, 25, 50, 100],
           },
         }}
       />
