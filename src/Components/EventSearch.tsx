@@ -73,7 +73,9 @@ export default function EventSearch({}: Props) {
       const snapshot = await getDocs(eventCollectionRef);
       const firestoreEntrants: { [id: string]: boolean } = {};
       snapshot.forEach((doc) => {
-        firestoreEntrants[doc.id] = true;
+        console.log(doc.data());
+        //@ts-ignore
+        firestoreEntrants[doc.data().id] = true;
       });
 
       // Add new entrants and update existing ones
@@ -93,14 +95,13 @@ export default function EventSearch({}: Props) {
         })
       );
 
-      console.log(firestoreEntrants);
-
       // Remove entrants that are not in the API result
       await Promise.all(
-        Object.keys(firestoreEntrants).map((id) =>
-          //deleteDoc(doc(eventCollectionRef, id)) why is this
-          console.log(id)
-        )
+        Object.keys(firestoreEntrants).map((id) => {
+          const docRef = doc(eventCollectionRef, id);
+          //deleteDoc(docRef);
+          console.log(`Deleted ${id}`);
+        })
       );
 
       console.log("Firestore collection updated.");
@@ -122,6 +123,14 @@ export default function EventSearch({}: Props) {
       console.log(
         `Updated entrant with ID "${id}", set "${field}" to "${value}".`
       );
+    }
+  };
+
+  const handleDelete = async (id: Number) => {
+    if (eventCollectionRef) {
+      const entrantDocRef = doc(eventCollectionRef, id.toString());
+      await updateDoc(entrantDocRef, { id: id, paid: false, deleted: true });
+      console.log(`"Deleted" ${id}.`);
     }
   };
 
@@ -154,7 +163,6 @@ export default function EventSearch({}: Props) {
               <ul className="flex gap-3">
                 {data.tournament.events.map(
                   (event: { id: string; name: string }) => {
-                    console.log(event.id);
                     return (
                       <Button
                         onClick={() => checkAndCreateCollection(event.id)}
@@ -172,19 +180,23 @@ export default function EventSearch({}: Props) {
         </div>
       ) : (
         <div>
-          <h3>Documents in the "{selectedEventId}" collection:</h3>
           {loadingDocuments || !snapshot ? (
             <p>Loading documents...</p>
           ) : errorDocuments ? (
             <p>Error fetching documents: {errorDocuments.message}</p>
           ) : (
             <PaidStatusDataGrid //@ts-ignore
-              documents={snapshot.docs.map((doc) => ({
-                id: doc.id,
-                name: doc.data().name,
-                paid: doc.data().paid,
-              }))}
+              documents={snapshot.docs.map((doc) => {
+                if (!doc.data().deleted) {
+                  return {
+                    id: doc.id,
+                    name: doc.data().name,
+                    paid: doc.data().paid,
+                  };
+                }
+              })}
               onCellClick={handlePaidStatusToggle}
+              handleDelete={handleDelete}
             />
           )}
         </div>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DataGrid, GridColDef, GridRowProps } from "@mui/x-data-grid";
-import { CircularProgress } from "@mui/material";
+import { Button, Chip, CircularProgress } from "@mui/material";
 import { collection, doc, updateDoc } from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import CheckIcon from "@mui/icons-material/Check";
@@ -11,19 +11,21 @@ interface DataGridDocument {
   id: string;
   name: string;
   paid: boolean;
-  docRef: DocumentReference; // Add this line
+  docRef: DocumentReference;
 }
 
 interface Props {
   documents: DataGridDocument[];
   onCellClick: (id: string, field: string, value: boolean) => void;
+  handleDelete: (id: Number) => void;
 }
 
 export const PaidStatusDataGrid: React.FC<Props> = ({
   documents,
   onCellClick,
+  handleDelete,
 }) => {
-  const [page, setPage] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
     {
@@ -57,7 +59,8 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
     },
   ];
 
-  const { searchQuery } = useSearchContext();
+  const { searchQuery, setSearchQuery } = useSearchContext();
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
   const filteredEntrants = documents.filter((entrant: DataGridDocument) =>
     entrant && entrant.name
@@ -66,13 +69,28 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
   );
 
   return (
-    <div style={{ width: "100%", minHeight: 400 }}>
+    <div className="w-full min-h0[400px] flex flex-col gap-6">
+      {searchQuery && (
+        <Chip
+          label={`Search: ${searchQuery}`}
+          onDelete={() => setSearchQuery("")}
+          className=" w-fit"
+        />
+      )}
       <DataGrid
         rows={filteredEntrants}
         columns={columns}
         checkboxSelection={false}
         autoHeight={true}
-        pageSizeOptions={[10, 12, 15, 25, 50, 100]}
+        onPaginationModelChange={() => setShowDeleteModal(false)}
+        pageSizeOptions={[5, 10, 12, 15, 25, 50, 100]}
+        onRowDoubleClick={(r) => setShowDeleteModal(!showDeleteModal)}
+        onRowClick={(r) => {
+          if (selectedRowId != r.id) {
+            setShowDeleteModal(false);
+          } //@ts-ignore
+          setSelectedRowId(r.id);
+        }}
         initialState={{
           pagination: {
             paginationModel: {
@@ -82,6 +100,27 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
           },
         }}
       />
+
+      <div
+        className={`${
+          showDeleteModal ? "flex" : "hidden"
+        } bg-red-400 w-full relative top-[-119px] transition-all py-2 px-2`}
+      >
+        <Button
+          variant="outlined"
+          sx={{
+            color: "white",
+            borderColor: "white",
+          }}
+          onClick={() => {
+            //@ts-ignore
+            handleDelete(selectedRowId);
+            setShowDeleteModal(false);
+          }}
+        >
+          Delete Entrant
+        </Button>
+      </div>
     </div>
   );
 };
