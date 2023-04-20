@@ -96,10 +96,11 @@ export default function EventSearch({}: Props) {
       );
 
       // Remove entrants that are not in the API result
+      console.log(entrants);
       await Promise.all(
         Object.keys(firestoreEntrants).map((id) => {
           const docRef = doc(eventCollectionRef, id);
-          //deleteDoc(docRef);
+          deleteDoc(docRef);
           console.log(`Deleted ${id}`);
         })
       );
@@ -109,7 +110,9 @@ export default function EventSearch({}: Props) {
   };
 
   useEffect(() => {
-    updateFirestoreCollection();
+    if (entrants.length > 0) {
+      updateFirestoreCollection();
+    }
   }, [entrants, eventCollectionRef]);
 
   const handlePaidStatusToggle = async (
