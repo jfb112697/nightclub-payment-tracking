@@ -19,7 +19,7 @@ interface Props {
   documents: DataGridDocument[];
   onCellClick: (id: string, field: string, value: boolean) => void;
   handleDelete: (id: Number) => void;
-  handleRefresh: () => void;
+  handleRefresh: any;
 }
 
 export const PaidStatusDataGrid: React.FC<Props> = ({

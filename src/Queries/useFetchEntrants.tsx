@@ -65,7 +65,11 @@ const useFetchEntrants = (id: string | null) => {
     fetchAllPages(1);
   }, [id, fetchAllPages]);
 
-  return { entrants, loading, error, fetchAllPages };
+  const refreshEntrants: () => void = () => {
+    fetchAllPages(1);
+  };
+
+  return { entrants, loading, error, refreshEntrants };
 };
 
 export default useFetchEntrants;

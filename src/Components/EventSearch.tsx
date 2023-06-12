@@ -19,7 +19,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import db from "../firebase";
 import { PaidStatusDataGrid } from "./PaidStatusDataGrid";
 import useFetchEntrants from "../Queries/useFetchEntrants";
-import fetchAllPages from "../Queries/useFetchEntrants";
+import refreshEntrants from "../Queries/useFetchEntrants";
 
 type Props = {};
 
@@ -37,6 +37,7 @@ export default function EventSearch({}: Props) {
     entrants,
     loading: entrantsLoading,
     error: entrantsError,
+    refreshEntrants,
   } = useFetchEntrants(selectedEventId);
 
   //end hooks
@@ -201,7 +202,7 @@ export default function EventSearch({}: Props) {
               })}
               onCellClick={handlePaidStatusToggle}
               handleDelete={handleDelete}
-              handleRefresh={fetchAllPages}
+              handleRefresh={refreshEntrants}
             />
           )}
         </div>
