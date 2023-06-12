@@ -65,7 +65,7 @@ const useFetchEntrants = (id: string | null) => {
     fetchAllPages(1);
   }, [id, fetchAllPages]);
 
-  return { entrants, loading, error };
+  return { entrants, loading, error, fetchAllPages };
 };
 
 export default useFetchEntrants;

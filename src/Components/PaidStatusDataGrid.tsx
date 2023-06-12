@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { DataGrid, GridColDef, GridRowProps } from "@mui/x-data-grid";
-import { Button, Chip, CircularProgress } from "@mui/material";
+import { Button, Chip, CircularProgress, Icon } from "@mui/material";
 import { collection, doc, updateDoc } from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { useSearchContext } from "../Context/SearchContext";
 
 interface DataGridDocument {
@@ -18,12 +19,14 @@ interface Props {
   documents: DataGridDocument[];
   onCellClick: (id: string, field: string, value: boolean) => void;
   handleDelete: (id: Number) => void;
+  handleRefresh: () => void;
 }
 
 export const PaidStatusDataGrid: React.FC<Props> = ({
   documents,
   onCellClick,
   handleDelete,
+  handleRefresh,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const columns: GridColDef[] = [
@@ -70,6 +73,9 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
 
   return (
     <div className="w-full min-h0[400px] flex flex-col gap-6">
+      <Button variant={"text"} onClick={handleRefresh}>
+        <RefreshIcon />
+      </Button>
       {searchQuery && (
         <Chip
           label={`Search: ${searchQuery}`}
