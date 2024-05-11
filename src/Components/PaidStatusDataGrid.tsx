@@ -1,12 +1,21 @@
 import React, { useState } from "react";
 import { DataGrid, GridColDef, GridRowProps } from "@mui/x-data-grid";
-import { Button, Chip, CircularProgress, Icon } from "@mui/material";
-import { collection, doc, updateDoc } from "firebase/firestore";
+import { Button, Chip, CircularProgress, Icon, TextField } from "@mui/material";
+import {
+  collection,
+  CollectionReference,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useSearchContext } from "../Context/SearchContext";
+
+import _ from "lodash";
+
+const debounce = _.debounce;
 
 interface DataGridDocument {
   id: string;
@@ -20,6 +29,7 @@ interface Props {
   onCellClick: (id: string, field: string, value: boolean) => void;
   handleDelete: (id: Number) => void;
   handleRefresh: any;
+  eventCollectionRef: CollectionReference;
 }
 
 export const PaidStatusDataGrid: React.FC<Props> = ({
@@ -27,6 +37,7 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
   onCellClick,
   handleDelete,
   handleRefresh,
+  eventCollectionRef,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const columns: GridColDef[] = [
@@ -60,7 +71,27 @@ export const PaidStatusDataGrid: React.FC<Props> = ({
         );
       },
     },
+    {
+      field: "notes",
+      headerName: "Notes",
+      width: 200,
+      renderCell: (params: any) => (
+        <TextField
+          fullWidth
+          value={params.value || ""}
+          onChange={(e) => {
+            debouncedUpdateNotes(params.id, e.target.value);
+          }}
+          onClick={(e) => e.stopPropagation()} // Prevents row click event
+        />
+      ),
+    },
   ];
+
+  const debouncedUpdateNotes = debounce(async (id: string, notes: any) => {
+    const docRef = doc(eventCollectionRef, id);
+    await updateDoc(docRef, { notes });
+  }, 15); // Debounce updates to every 30ms
 
   const { searchQuery, setSearchQuery } = useSearchContext();
   const [selectedRowId, setSelectedRowId] = useState(null);

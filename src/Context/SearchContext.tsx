@@ -17,6 +17,7 @@ interface SearchProviderProps {
 export const useSearchContext = () => useContext(SearchContext);
 export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const events = useState([]);
 
   return (
     <SearchContext.Provider value={{ searchQuery, setSearchQuery }}>

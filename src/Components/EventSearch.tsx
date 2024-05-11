@@ -197,9 +197,11 @@ export default function EventSearch({}: Props) {
                     id: doc.id,
                     name: doc.data().name,
                     paid: doc.data().paid,
+                    notes: doc.data().notes || "",
                   };
                 }
               })}
+              eventCollectionRef={eventCollectionRef}
               onCellClick={handlePaidStatusToggle}
               handleDelete={handleDelete}
               handleRefresh={refreshEntrants}
