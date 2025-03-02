@@ -22,7 +22,7 @@ Streamline nightclub payment processing by offloading start.gg queries.
 
 1. Clone the repository
    ```bash
-   git clone https://your-repo-url.git
+   git clone https://github.com/jfb112697/nightclub-payment-tracking
    cd nightclub-payment-tracking
    ```
 
@@ -36,7 +36,7 @@ Streamline nightclub payment processing by offloading start.gg queries.
    - Rename `example.env` to `.env`
    - Add your developer key to the `.env` file:
      ```
-     VITE_START_GG_API_KEY=your_api_key_here
+     VITE_GG_BEARER=your_api_key_here
      ```
 
 4. Set up Firebase

@@ -20,6 +20,10 @@ export default function EventSearch() {
   const [getTournament, { data, loading, error }] = useLazyQuery(TOURNAMENT_QUERY);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [eventCollectionRef, setEventCollectionRef] = useState<CollectionReference | null>(null);
+  // const [cookies, setCookie] = useCookies(['prevSearches']);
+  const [searchList, setSearchList] = useState([]);
+
+  console.log(searchList)
 
   const {
     entrants,
@@ -36,8 +40,26 @@ export default function EventSearch() {
     }
   }, [selectedEventId]);
 
+  useEffect(() => {
+    // Save the list to LocalStorage whenever it changes
+    localStorage.setItem('searchList', JSON.stringify(searchList));
+  }, [searchList]);
+
+  useEffect(() => {
+    // Retrieve the list from LocalStorage
+    const storedList = localStorage.getItem('searchList');
+    if (storedList) {
+      setSearchList(JSON.parse(storedList));
+    }
+  }, []);
+
+  const addItem = (item: string) => {
+    setSearchList((searchList: string[]) => [...searchList, item]);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    addItem(ggSlug);
     getTournament({ variables: { slug: ggSlug } });
   };
 
@@ -100,6 +122,21 @@ export default function EventSearch() {
               value={ggSlug}
               onChange={(c) => setGgSlug(c.target.value)}
             />
+
+          <div>
+            <h2>Previous Searches</h2>
+            <ul className="flex gap-3">
+              {searchList.map((slug: string) => {
+                return (<Button type="submit" onClick={
+                  () => {
+                    setGgSlug(slug);
+                  }
+                }>
+                  {slug}
+                </Button>
+              )});
+            </ul>
+          </div>
             <Button variant="contained" type="submit">
               Get Events
             </Button>
